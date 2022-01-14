@@ -55,6 +55,19 @@ if __name__ == '__main__':
     U = np.einsum("ik,klt,lj->ijt",V,U_tilde,V_inv)
     rho_t = np.einsum("ijt,j->it",U,rho_0)
 
-    plt.plot(t, rho_t[0])
-    plt.plot(t, rho_t[3])
-    plt.show()
+    #check: diagonal elements of density matrix sum up to one
+    assert np.allclose(rho_t[0,:]+rho_t[3,:],np.ones_like(rho_t[0,:]))
+    assert np.allclose(rho_t[1,:]-rho_t[2,:].T.conj(),np.zeros_like(rho_t[1,:]))
+
+    # plot populations and coherences
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    fig.suptitle("Two-level system without decay")
+
+    ax1.plot(t, rho_t[0].real, label=r"$\rho_{00}$")
+    ax1.plot(t, rho_t[3].real, label=r"$\rho_{11}$")
+    ax1.set(xlabel="time", ylabel="population")
+    ax1.legend()
+    ax2.plot(t, np.abs(rho_t[1]), label=r"$abs(\rho_{01})$")
+    ax2.plot(t, np.angle(rho_t[1]),  label=r"$arg(\rho_{01})$")
+    ax2.set(xlabel="time", ylabel="coherence")
+    ax2.legend()
