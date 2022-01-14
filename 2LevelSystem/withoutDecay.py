@@ -9,12 +9,8 @@ np.set_printoptions(linewidth=800)
 DIM_HILBERT_SPACE = 2
 DIM_LIOUVILLE_SPACE = DIM_HILBERT_SPACE ** 2
 
-basis = np.eye(DIM_LIOUVILLE_SPACE)
 
-OMEGA = 1.
-ENERGY = 1.
 
-t = np.linspace(0, 5, 100)
 
 
 def make_liouvillian(energy, omega):
@@ -26,22 +22,24 @@ def make_liouvillian(energy, omega):
 
 
 def transform_matrix(M, V, V_inv):
-    M_new = np.matmul(V_inv, np.matmul(M, V))
+    M_new = np.einsum("ij,jk,kl->il", V_inv, M, V)
     return M_new
 
 
 def transform_vektor(vec, V_inv):
-    vec_new = np.matmul(V_inv, vec)
+    vec_new = np.einsum("ij,j->i",V_inv, vec)
     return vec_new
 
 
 if __name__ == '__main__':
     energy = 1
-    omega = 1
+    omega = 2.
     rho_00 = 0.
     rho_01 = 0.
     rho_10 = 0.
     rho_11 = 1.
+
+    t = np.linspace(0, 5, 100)
 
     L = make_liouvillian(energy, omega)
     eigval, V = np.linalg.eig(L)
