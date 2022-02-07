@@ -44,8 +44,7 @@ if __name__ == '__main__':
     L = make_liouvillian(energy, omega, gamma)
     eigval, V = np.linalg.eig(L)
     V_inv = np.linalg.inv(V)
-    L_tilde = transform_matrix(L, V, V_inv)
-    rho_0 = np.array([rho_00, rho_01, rho_10, rho_11])
+    L_tilde = np.diag(eigval)
 
     U_tilde = np.zeros((DIM_LIOUVILLE_SPACE, DIM_LIOUVILLE_SPACE, t.size), dtype=np.complex64)
 
