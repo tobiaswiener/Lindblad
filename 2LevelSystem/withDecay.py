@@ -31,12 +31,13 @@ def transform_vektor(vec, V_inv):
 
 if __name__ == '__main__':
     energy = 1
-    omega = 2
-    gamma = 0.4
+    omega = 0.5
+    gamma = 0.2
     rho_00 = 0.
     rho_01 = 0.
     rho_10 = 0.
     rho_11 = 1.
+    rho_0 = np.array([rho_00, rho_01, rho_10, rho_11])
 
     t = np.linspace(0, 5, 100)
 
@@ -50,6 +51,7 @@ if __name__ == '__main__':
 
     for i in range(DIM_LIOUVILLE_SPACE):
         U_tilde[i, i, :] = np.exp(eigval[i] * t)
+
 
     U = np.einsum("ik,klt,lj->ijt", V, U_tilde, V_inv)
     rho_t = np.einsum("ijt,j->it", U, rho_0)
@@ -70,3 +72,4 @@ if __name__ == '__main__':
     ax2.plot(t, np.angle(rho_t[1]),  label=r"$arg(\rho_{01})$")
     ax2.set(xlabel="time", ylabel="coherence")
     ax2.legend()
+    plt.show()
