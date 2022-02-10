@@ -10,6 +10,15 @@ np.set_printoptions(linewidth=800)
 DIM_HILBERT_SPACE = 2
 DIM_LIOUVILLE_SPACE = DIM_HILBERT_SPACE ** 2
 
+def norm_Q_P(Q, P):
+    M = np.einsum("ij,jk->ik", Q.T.conj(), P)
+    l, u = sp.linalg.lu(M, permute_l=True)
+    l_inv = sp.linalg.inv(l)
+    u_inv = sp.linalg.inv(u)
+
+    P_new = np.einsum("ij,jk->ik", P, u_inv)
+    Q_new = np.einsum("ij,jk->ik", l_inv, Q)
+    return P_new, Q_new
 
 def make_liouvillian(energy, omega, gamma):
     L = np.array([[0, 1j * omega, -1j * omega, gamma],
@@ -51,37 +60,28 @@ def expand_rho_t(eigvals,left,right,rho_0,t):
     return rho_t
 if __name__ == '__main__':
     energy = 1
-    omega = 0.5
-    gamma = 0.2
+    omega = 1.
+    gamma = 0.1
     rho_00 = 0.
     rho_01 = 0.
     rho_10 = 0.
     rho_11 = 1.
 
-    t = np.linspace(0, 5, 100)
-
-    L = make_liouvillian(energy, omega, gamma)
-    eigvals, left, right = sp.linalg.eig(L, left=True, right=True)
-
     rho_0 = np.array([rho_00, rho_01, rho_10, rho_11])
 
-    if False:
-        V_inv = np.linalg.inv(V)
-        L_tilde = transform_matrix(L, V, V_inv)
+    t = np.linspace(0, 100, 1000)
 
-        U_tilde = np.zeros((DIM_LIOUVILLE_SPACE, DIM_LIOUVILLE_SPACE, t.size), dtype=np.complex64)
+    L = make_liouvillian(energy, omega, gamma)
+    value, Q, P = sp.linalg.eig(L, left=True, right=True)
+    P_biorthonorm ,Q_biorthonorm = norm_Q_P(Q,P)
 
-        for i in range(DIM_LIOUVILLE_SPACE):
-            U_tilde[i, i, :] = np.exp(eigvals[i] * t)
-
-        U = np.einsum("ik,klt,lj->ijt", V, U_tilde, V_inv)
-        rho_t = np.einsum("ijt,j->it", U, rho_0)
+    exp_lambda_t = np.exp(np.einsum("i,t->it", value, t))
+    rho_t = np.einsum("it,mi,iv,v->mt", exp_lambda_t, P_biorthonorm, Q_biorthonorm.conj().T, rho_0)
 
 
-    rho_t = expand_rho_t(eigvals,left,right,rho_0,t)
     ## check: diagonal elements of density matrix sum up to one
-    #assert np.allclose(rho_t[0, :] + rho_t[3, :], np.ones_like(rho_t[0, :]))
-    #assert np.allclose(rho_t[1, :] - rho_t[2, :].T.conj(), np.zeros_like(rho_t[1, :]))
+    assert np.allclose(rho_t[0, :] + rho_t[3, :], np.ones_like(rho_t[0, :]))
+    assert np.allclose(rho_t[1, :] - rho_t[2, :].T.conj(), np.zeros_like(rho_t[1, :]))
 
     # plot populations and coherences
     fig, (ax1, ax2) = plt.subplots(1, 2)
