@@ -90,6 +90,7 @@ if __name__ == '__main__':
     ax1.plot(t, rho_t[0].real, label=r"$\rho_{00}$")
     ax1.plot(t, rho_t[3].real, label=r"$\rho_{11}$")
     ax1.set(xlabel="time", ylabel="population")
+    ax1.set_ylim(0,1)
     ax1.legend()
     ax2.plot(t, np.abs(rho_t[1]), label=r"$abs(\rho_{01})$")
     ax2.plot(t, np.angle(rho_t[1]),  label=r"$arg(\rho_{01})$")
