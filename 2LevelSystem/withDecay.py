@@ -37,28 +37,10 @@ def make_liouvillian(energy, omega, gamma):
     return L
 
 
-def transform_matrix(M, V, V_inv):
-    M_new = np.einsum("ij,jk,kl->il", V_inv, M, V)
-    return M_new
-
-
-def transform_vektor(vec, V_inv):
-    vec_new = np.einsum("ij,j->i", V_inv, vec)
-    return vec_new
-
-def right_eigenvalue_equation(L, right, eigvals):
-    lhs = np.einsum("jk,ki->ji",L,right)
-    rhs = np.einsum("i,ji->ji",eigvals,right)
-    return np.allclose(lhs,rhs)
-def left_eigenvalue_equation(L,left,eigvals):
-    lhs = np.einsum("jk,ki->ji",L.conj().T,left)
-    rhs = np.einsum("i,ji->ji",eigvals.conj(),left)
-    return np.allclose(lhs,rhs)
-
-def expand_rho(left,right,vector):
-    left_vector = np.einsum("ki,k->i",left.conj(),vector)
-    expanded = np.einsum("ki,i->k",right,left_vector)
-    return expanded
+def get_steady_state(eigvals, eigvecs):
+    ss_index = np.argwhere(np.isclose(np.abs(eigvals),0))[0][0]
+    steady_state = eigvecs[:,ss_index]/np.abs(eigvecs[:,ss_index][0]+eigvecs[:,ss_index][3])
+    return steady_state
 
 def expand_rho_t(eigvals,left,right,rho_0,t):
     exp_eigvals = np.exp(np.einsum("i,t->it", eigvals, t))
