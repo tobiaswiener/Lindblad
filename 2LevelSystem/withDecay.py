@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy as sp
 from scipy import linalg
+import utils
+import plotting
 # suppress small values when printing
 np.set_printoptions(suppress=True)
 # set terminal width
