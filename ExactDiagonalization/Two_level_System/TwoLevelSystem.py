@@ -11,25 +11,19 @@ np.set_printoptions(suppress=True)
 np.set_printoptions(linewidth=800)
 
 
-def biorthonormalize_Q_P(Q, P):
+def biorthonormalize_P_Q(P, Q):
     """
     source: https://joshuagoings.com/2015/04/03/biorthogonalizing-left-and-right-eigenvectors-the-easy-lazy-way/
-    Biorthonormalizes the left and right eigenvectors i.e. :math:`Q^\dagger P = \mathbb{1}`
-
-    :param Q: Matrix of left eigenvectors where Q[:,i] is the ith left eigenKET.
-    :param P: Matrix of right eigenvectors where P[:,i] is the ith right eigenKET.
-    :return:
-        - P_new - Matrix of biorthonormalized left eigenvectors, where Q[:,i] is the ith left eigenKET.
-        - Q_new - Matrix of biorthonormalized right eigenvectors where P[:,i] is the ith right eigenKET.
     """
+
     M = np.einsum("ij,jk->ik", Q.T.conj(), P)
     l, u = sp.linalg.lu(M, permute_l=True)
     l_inv = sp.linalg.inv(l)
     u_inv = sp.linalg.inv(u)
 
-    P_new = np.einsum("ij,jk->ik", P, u_inv)
-    Q_new = np.einsum("ij,jk->ik", l_inv, Q)
-    return P_new, Q_new
+    P_bi = np.einsum("ij,jk->ik", P, u_inv)
+    Q_bi = np.einsum("ij,jk->ik", l_inv, Q)
+    return P_bi, Q_bi
 
 
 def make_liouvillian(energy, omega, gamma):
@@ -67,17 +61,17 @@ def get_steady_state(eigvals, eigvecs):
 
 
 
-def expand_rho_t(eigvals, Q, P, rho_0, t):
+def expand_rho_t(eigvals, P, Q, rho_0, t):
     """
 
     Parameters
     ----------
     eigvals: (DIM_LIOUVILLE_SPACE,) np.ndarray
         Eigenvalues of Liouvillian.
-    Q: (DIM_LIOUVILLE_SPACE, DIM_LIOUVILLE_SPACE) np.ndarray
-        Matrix of biorthonormalized left eigenvectors, where Q[:,i] is the ith left eigenKET.
     P: (DIM_LIOUVILLE_SPACE, DIM_LIOUVILLE_SPACE) np.ndarray
-        Matrix of biorthonormalized right eigenvectors where P[:,i] is the ith right eigenKET.
+        Matrix of biorthonormalized left eigenvectors, where P[:,i] is the ith left eigenKET.
+    Q: (DIM_LIOUVILLE_SPACE, DIM_LIOUVILLE_SPACE) np.ndarray
+        Matrix of biorthonormalized right eigenvectors where Q[:,i] is the ith right eigenKET.
     rho_0: (DIM_LIOUVILLE_SPACE,) np.ndarray
         Density matrix at t=0 as a vector in Fock-Liouville space.
     t: (T,) np.ndarray
@@ -90,14 +84,12 @@ def expand_rho_t(eigvals, Q, P, rho_0, t):
 
     Notes
     -----
-
     .. math:: | \rho(0) \rangle\rangle = \sum_i |\Lambda_i^{\mathrm{R}}\rangle\rangle \langle\langle \Lambda_i^{\mathrm{L}}|\rho(0)\rangle\ranlge
 
-    And even use a Greek symbol like :math:`\omega` inline.
     """
 
     exp_lambda_t = np.exp(np.einsum("i,t->it", eigvals, t))
-    rho_t = np.einsum("it,mi,iv,v->mt", exp_lambda_t, P, Q.conj().T, rho_0)
+    rho_t = np.einsum("it,mi,iv,v->mt", exp_lambda_t, Q, P.conj().T, rho_0)
 
     return rho_t
 
@@ -135,9 +127,9 @@ if __name__ == '__main__':
 
     L = make_liouvillian(energy, omega, gamma)
 
-    eigvals, Q, P = sp.linalg.eig(L, left=True, right=True)
-    P_biorthonorm, Q_biorthonorm = biorthonormalize_Q_P(Q, P)
-    rho_t = expand_rho_t(eigvals=eigvals, Q=Q_biorthonorm, P=P_biorthonorm, rho_0=rho_0, t=t)
+    eigvals, P, Q = sp.linalg.eig(L, left=True, right=True)
+    P_biorthonorm, Q_biorthonorm = biorthonormalize_P_Q(P=P, Q=Q)
+    rho_t = expand_rho_t(eigvals=eigvals, P=P_biorthonorm, Q=Q_biorthonorm, rho_0=rho_0, t=t)
 
     check_density_matrix(rho_t)
 
