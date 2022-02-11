@@ -64,24 +64,19 @@ def check_density_matrix(rho_t):
 
 
 if __name__ == '__main__':
-    energy = 1
-    omega = 1.
+
+    energy = 1.
+    omega = 0.9
     gamma = 0.1
+
     rho_00 = 0.
     rho_01 = 0.
     rho_10 = 0.
     rho_11 = 1.
-
     rho_0 = np.array([rho_00, rho_01, rho_10, rho_11])
-
     t = np.linspace(0, 100, 1000)
 
     L = make_liouvillian(energy, omega, gamma)
-    value, Q, P = sp.linalg.eig(L, left=True, right=True)
-    P_biorthonorm ,Q_biorthonorm = norm_Q_P(Q,P)
-
-    exp_lambda_t = np.exp(np.einsum("i,t->it", value, t))
-    rho_t = np.einsum("it,mi,iv,v->mt", exp_lambda_t, P_biorthonorm, Q_biorthonorm.conj().T, rho_0)
 
     eigvals, Q, P = sp.linalg.eig(L, left=True, right=True)
     P_biorthonorm ,Q_biorthonorm = biorthonormalize_Q_P(Q, P)
