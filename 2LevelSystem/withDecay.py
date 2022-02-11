@@ -47,6 +47,22 @@ def expand_rho_t(eigvals,Q,P,rho_0,t):
     rho_t = np.einsum("it,mi,iv,v->mt", exp_lambda_t, P, Q.conj().T, rho_0)
 
     return rho_t
+
+def reshape_rho_t_to_matrix(rho_t):
+    rho_t_matrix = np.reshape(rho_t, (DIM_HILBERT_SPACE, DIM_HILBERT_SPACE, -1))
+    return rho_t_matrix
+
+def check_density_matrix(rho_t):
+    rho_t_matrix = reshape_rho_t_to_matrix(rho_t=rho_t)
+    trace_rho_t =  np.einsum("iit->t",rho_t_matrix)
+    if not np.allclose(trace_rho_t,1):
+        raise utils.UnphysicalDensityMatrixException("Trace of density matrix is not one")
+    if not np.allclose(rho_t_matrix,np.transpose(rho_t_matrix,axes=(1,0,2)).conj()):
+        raise utils.UnphysicalDensityMatrixException("Density matrix is not hermitian")
+
+
+
+
 if __name__ == '__main__':
     energy = 1
     omega = 1.
