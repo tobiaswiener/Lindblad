@@ -11,7 +11,6 @@ np.set_printoptions(suppress=True)
 np.set_printoptions(linewidth=800)
 
 
-
 def biorthonormalize_Q_P(Q, P):
     """
     source: https://joshuagoings.com/2015/04/03/biorthogonalizing-left-and-right-eigenvectors-the-easy-lazy-way/
