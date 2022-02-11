@@ -13,6 +13,22 @@ np.set_printoptions(linewidth=800)
 
 def biorthonormalize_P_Q(P, Q):
     """
+    Biorthonormalizes the left and right eigenvectors i.e. :math:`P^\dagger Q = \mathbb{1}`
+
+    Parameters
+    ----------
+    P: (DIM_LIOUVILLE_SPACE, DIM_LIOUVILLE_SPACE) np.ndarray
+        Matrix of normalized left eigenvectors, where P[:,i] is the ith left eigenKET.
+    Q: (DIM_LIOUVILLE_SPACE, DIM_LIOUVILLE_SPACE) np.ndarray
+        Matrix of normalized right eigenvectors where Q[:,i] is the ith right eigenKET.
+
+    Returns
+    -------
+    P: (DIM_LIOUVILLE_SPACE, DIM_LIOUVILLE_SPACE) np.ndarray
+        Matrix of biorthonormalized left eigenvectors, where P[:,i] is the ith left eigenKET.
+
+    Notes
+    -------
     source: https://joshuagoings.com/2015/04/03/biorthogonalizing-left-and-right-eigenvectors-the-easy-lazy-way/
     """
 
