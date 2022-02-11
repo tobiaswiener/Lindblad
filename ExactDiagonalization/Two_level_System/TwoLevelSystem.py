@@ -24,21 +24,23 @@ def biorthonormalize_P_Q(P, Q):
 
     Returns
     -------
-    P: (DIM_LIOUVILLE_SPACE, DIM_LIOUVILLE_SPACE) np.ndarray
+    P_bi: (DIM_LIOUVILLE_SPACE, DIM_LIOUVILLE_SPACE) np.ndarray
         Matrix of biorthonormalized left eigenvectors, where P[:,i] is the ith left eigenKET.
+    Q_bi: (DIM_LIOUVILLE_SPACE, DIM_LIOUVILLE_SPACE) np.ndarray
+        Matrix of biorthonormalized right eigenvectors, where Q[:,i] is the ith right eigenKET.
 
     Notes
     -------
     source: https://joshuagoings.com/2015/04/03/biorthogonalizing-left-and-right-eigenvectors-the-easy-lazy-way/
     """
 
-    M = np.einsum("ij,jk->ik", Q.T.conj(), P)
+    M = np.einsum("ij,jk->ik", P.T.conj(), Q)
     l, u = sp.linalg.lu(M, permute_l=True)
     l_inv = sp.linalg.inv(l)
     u_inv = sp.linalg.inv(u)
 
-    P_bi = np.einsum("ij,jk->ik", P, u_inv)
-    Q_bi = np.einsum("ij,jk->ik", l_inv, Q)
+    Q_bi = np.einsum("ij,jk->ik", Q, u_inv)
+    P_bi = np.einsum("ij,jk->ik", l_inv, P)
     return P_bi, Q_bi
 
 
@@ -73,7 +75,7 @@ def make_liouvillian(energy, omega, gamma):
 
 
 
-def get_steady_state(eigvals, eigvecs):
+def get_steady_state(eigvals, Q):
     """
     Extracts the steady state of the Liouvillian out of the eigenstates.
     The steady state is the state corresponding to the zero eigenvalue.
@@ -193,5 +195,5 @@ if __name__ == '__main__':
 
     check_density_matrix(rho_t)
 
-    steady_state = get_steady_state(eigvals=eigvals, eigvecs=P)
+    steady_state = get_steady_state(eigvals=eigvals, Q=Q)
     plotting.plot_rho_to(t=t, rho_t=rho_t, steady_state=steady_state)
