@@ -44,14 +44,26 @@ def biorthonormalize_P_Q(P, Q):
 
 def make_liouvillian(energy, omega, gamma):
     """
+     Builds the Liouviallian operator corresponding to the Lindblad equation for the two-level System with decay.
+    Parameters
+    ----------
+    energy: float
+        Energy of the excited State.
+    omega: float
+        Coherently driving frequency between the two states.
+    gamma: float
+        Coupling between the two states and the vacuum.
+
+    Returns
+    -------
+    L: (DIM_LIOUVILLE_SPACE, DIM_LIOUVILLE_SPACE) np.ndarray
+        Liouvillian matrix
+
+    Notes
+    -----
     Source: https://aip.scitation.org/doi/10.1063/1.5115323
-    Builds the Liouviallian operator corresponding to the Lindblad equation for the two-level System with decay.
-    :param energy: Energy of the excited State.
-    :param omega: Coherently driving frequency between the two states.
-    :param gamma: Coupling between the two states and the vacuum.
-    :return:
-        - L - Liouvillian matrix
     """
+
     L = np.array([[0, 1j * omega, -1j * omega, gamma],
                   [1j * omega, 1j * energy - gamma / 2, 0, -1j * omega],
                   [-1j * omega, 0, -1j * energy - gamma / 2, 1j * omega],
@@ -65,11 +77,19 @@ def get_steady_state(eigvals, eigvecs):
     """
     Extracts the steady state of the Liouvillian out of the eigenstates.
     The steady state is the state corresponding to the zero eigenvalue.
-    :param eigvals: Eigenvalues of the Liouvillian.
-    :param eigvecs: Eigenstates of the Liouvillian
-    :return:
-        - steady_state: Steady State normalized to unit trace.
+    Parameters
+    ----------
+    eigvals: (DIM_LIOUVILLE_SPACE,) np.ndarray
+        Eigenvalues of Liouvillian.
+    Q: (DIM_LIOUVILLE_SPACE, DIM_LIOUVILLE_SPACE) np.ndarray
+        Matrix of normalized right eigenvectors where Q[:,i] is the ith right eigenKET.
+
+    Returns
+    -------
+    rho_ss: (DIM_LIOUVILLE_SPACE,) np.ndarray
+        Density Matrix describing the steady state of the system as a vector in Fock-Liouville space.
     """
+
     ss_value = 0
     ss_index = np.argwhere(np.isclose(np.abs(eigvals), ss_value))[0][0]
     steady_state = eigvecs[:, ss_index] / np.abs(eigvecs[:, ss_index][0] + eigvecs[:, ss_index][3])
@@ -78,7 +98,7 @@ def get_steady_state(eigvals, eigvecs):
 
 
 def expand_rho_t(eigvals, P, Q, rho_0, t):
-    """
+    """Expansion of time dependent density matrix in the eigenbasis of the Liouvillian.
 
     Parameters
     ----------
@@ -111,11 +131,35 @@ def expand_rho_t(eigvals, P, Q, rho_0, t):
 
 
 def reshape_rho_t_to_matrix(rho_t):
+    """Reshapes density matrix written as a vector in Fock-Liouville space to a matrix in hilbert space.
+
+    Parameters
+    ----------
+    rho_t: (DIM_LIOUVILLE_SPACE,T) np.ndarray
+        Time dependent density matrix as a vector in Fock-Liouville space.
+    Returns
+    -------
+    rho_t_matrix: (DIM_HILBERT_SPACE,DIM_HILBERT_SPACE,T)
+        Time dependent density matrix written as a matrix in hilbert space.
+    """
     rho_t_matrix = np.reshape(rho_t, (DIM_HILBERT_SPACE, DIM_HILBERT_SPACE, -1))
     return rho_t_matrix
 
 
 def check_density_matrix(rho_t):
+    """Checks if density matrix has physical properties.
+
+    All density matrices have unit trace and are hermitian.
+    Parameters
+    ----------
+    rho_t: (DIM_LIOUVILLE_SPACE,T) np.ndarray
+
+    Raises
+    ------
+    UnphysicalDensityMatrixError
+        if trace of density matrix is not 1 at all times.
+        if density matrix is not hermitian at all times.
+    """
     rho_t_matrix = reshape_rho_t_to_matrix(rho_t=rho_t)
     trace_rho_t = np.einsum("iit->t", rho_t_matrix)
     if not np.allclose(trace_rho_t, 1):
@@ -127,7 +171,7 @@ def check_density_matrix(rho_t):
 if __name__ == '__main__':
     DIM_HILBERT_SPACE = 2
     DIM_LIOUVILLE_SPACE = DIM_HILBERT_SPACE ** 2
-    T = 10
+    T = 100
 
 
     energy = 1.
