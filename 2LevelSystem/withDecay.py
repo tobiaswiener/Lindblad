@@ -83,22 +83,11 @@ if __name__ == '__main__':
     exp_lambda_t = np.exp(np.einsum("i,t->it", value, t))
     rho_t = np.einsum("it,mi,iv,v->mt", exp_lambda_t, P_biorthonorm, Q_biorthonorm.conj().T, rho_0)
 
+    eigvals, Q, P = sp.linalg.eig(L, left=True, right=True)
+    P_biorthonorm ,Q_biorthonorm = biorthonormalize_Q_P(Q, P)
+    rho_t = expand_rho_t(eigvals=eigvals, Q=Q_biorthonorm, P=P_biorthonorm, rho_0=rho_0, t=t)
 
-    ## check: diagonal elements of density matrix sum up to one
-    assert np.allclose(rho_t[0, :] + rho_t[3, :], np.ones_like(rho_t[0, :]))
-    assert np.allclose(rho_t[1, :] - rho_t[2, :].T.conj(), np.zeros_like(rho_t[1, :]))
+    check_density_matrix(rho_t)
 
-    # plot populations and coherences
-    fig, (ax1, ax2) = plt.subplots(1, 2)
-    fig.suptitle("Two-level system with decay")
-
-    ax1.plot(t, rho_t[0].real, label=r"$\rho_{00}$")
-    ax1.plot(t, rho_t[3].real, label=r"$\rho_{11}$")
-    ax1.set(xlabel="time", ylabel="population")
-    ax1.set_ylim(0,1)
-    ax1.legend()
-    ax2.plot(t, np.abs(rho_t[1]), label=r"$abs(\rho_{01})$")
-    ax2.plot(t, np.angle(rho_t[1]),  label=r"$arg(\rho_{01})$")
-    ax2.set(xlabel="time", ylabel="coherence")
-    ax2.legend()
-    plt.show()
+    steady_state = get_steady_state(eigvals=eigvals,eigvecs=P)
+    plotting.plot_rho_to(t=t, rho_t=rho_t, steady_state=steady_state)
