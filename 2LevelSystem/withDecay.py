@@ -12,7 +12,14 @@ np.set_printoptions(linewidth=800)
 DIM_HILBERT_SPACE = 2
 DIM_LIOUVILLE_SPACE = DIM_HILBERT_SPACE ** 2
 
-def norm_Q_P(Q, P):
+def biorthonormalize_Q_P(Q, P):
+    """
+    source: https://joshuagoings.com/2015/04/03/biorthogonalizing-left-and-right-eigenvectors-the-easy-lazy-way/
+
+    :param Q:
+    :param P:
+    :return:
+    """
     M = np.einsum("ij,jk->ik", Q.T.conj(), P)
     l, u = sp.linalg.lu(M, permute_l=True)
     l_inv = sp.linalg.inv(l)
