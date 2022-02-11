@@ -42,11 +42,9 @@ def get_steady_state(eigvals, eigvecs):
     steady_state = eigvecs[:,ss_index]/np.abs(eigvecs[:,ss_index][0]+eigvecs[:,ss_index][3])
     return steady_state
 
-def expand_rho_t(eigvals,left,right,rho_0,t):
-    exp_eigvals = np.exp(np.einsum("i,t->it", eigvals, t))
-
-    left_vector = np.einsum("ki,k->i",left.conj(),rho_0)
-    rho_t = np.einsum("it,ki,i->kt",exp_eigvals,right,left_vector)
+def expand_rho_t(eigvals,Q,P,rho_0,t):
+    exp_lambda_t = np.exp(np.einsum("i,t->it", eigvals, t))
+    rho_t = np.einsum("it,mi,iv,v->mt", exp_lambda_t, P, Q.conj().T, rho_0)
 
     return rho_t
 if __name__ == '__main__':
