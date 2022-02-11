@@ -17,10 +17,13 @@ DIM_LIOUVILLE_SPACE = DIM_HILBERT_SPACE ** 2
 def biorthonormalize_Q_P(Q, P):
     """
     source: https://joshuagoings.com/2015/04/03/biorthogonalizing-left-and-right-eigenvectors-the-easy-lazy-way/
+    Biorthonormalizes the left and right eigenvectors i.e. :math:`Q^\dagger P = \mathbb{1}`
 
-    :param Q:
-    :param P:
+    :param Q: Matrix of left eigenvectors where Q[:,i] is the ith left eigenKET.
+    :param P: Matrix of right eigenvectors where P[:,i] is the ith right eigenKET.
     :return:
+        - P_new - Biorthonormalized matrix of left eigenvectors where Q[:,i] is the ith left eigenKET.
+        - Q_new - Biorthonormalized matrix of right eigenvectors where P[:,i] is the ith left eigenKET.
     """
     M = np.einsum("ij,jk->ik", Q.T.conj(), P)
     l, u = sp.linalg.lu(M, permute_l=True)
