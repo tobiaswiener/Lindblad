@@ -165,9 +165,9 @@ def check_density_matrix(rho_t):
     rho_t_matrix = reshape_rho_t_to_matrix(rho_t=rho_t)
     trace_rho_t = np.einsum("iit->t", rho_t_matrix)
     if not np.allclose(trace_rho_t, 1):
-        raise utils.UnphysicalDensityMatrixException("Trace of density matrix is not one")
+        raise utils.UnphysicalDensityMatrixError("Trace of density matrix is not one")
     if not np.allclose(rho_t_matrix, np.transpose(rho_t_matrix, axes=(1, 0, 2)).conj()):
-        raise utils.UnphysicalDensityMatrixException("Density matrix is not hermitian")
+        raise utils.UnphysicalDensityMatrixError("Density matrix is not hermitian")
 
 
 if __name__ == '__main__':
