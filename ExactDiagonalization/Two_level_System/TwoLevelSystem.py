@@ -10,8 +10,6 @@ np.set_printoptions(suppress=True)
 # set terminal width
 np.set_printoptions(linewidth=800)
 
-DIM_HILBERT_SPACE = 2
-DIM_LIOUVILLE_SPACE = DIM_HILBERT_SPACE ** 2
 
 
 def biorthonormalize_Q_P(Q, P):
@@ -22,8 +20,8 @@ def biorthonormalize_Q_P(Q, P):
     :param Q: Matrix of left eigenvectors where Q[:,i] is the ith left eigenKET.
     :param P: Matrix of right eigenvectors where P[:,i] is the ith right eigenKET.
     :return:
-        - P_new - Biorthonormalized matrix of left eigenvectors where Q[:,i] is the ith left eigenKET.
-        - Q_new - Biorthonormalized matrix of right eigenvectors where P[:,i] is the ith left eigenKET.
+        - P_new - Matrix of biorthonormalized left eigenvectors, where Q[:,i] is the ith left eigenKET.
+        - Q_new - Matrix of biorthonormalized right eigenvectors where P[:,i] is the ith right eigenKET.
     """
     M = np.einsum("ij,jk->ik", Q.T.conj(), P)
     l, u = sp.linalg.lu(M, permute_l=True)
@@ -52,13 +50,53 @@ def make_liouvillian(energy, omega, gamma):
     return L
 
 
+
+
 def get_steady_state(eigvals, eigvecs):
-    ss_index = np.argwhere(np.isclose(np.abs(eigvals), 0))[0][0]
+    """
+    Extracts the steady state of the Liouvillian out of the eigenstates.
+    The steady state is the state corresponding to the zero eigenvalue.
+    :param eigvals: Eigenvalues of the Liouvillian.
+    :param eigvecs: Eigenstates of the Liouvillian
+    :return:
+        - steady_state: Steady State normalized to unit trace.
+    """
+    ss_value = 0
+    ss_index = np.argwhere(np.isclose(np.abs(eigvals), ss_value))[0][0]
     steady_state = eigvecs[:, ss_index] / np.abs(eigvecs[:, ss_index][0] + eigvecs[:, ss_index][3])
     return steady_state
 
 
+
 def expand_rho_t(eigvals, Q, P, rho_0, t):
+    """
+
+    Parameters
+    ----------
+    eigvals: (DIM_LIOUVILLE_SPACE,) np.ndarray
+        Eigenvalues of Liouvillian.
+    Q: (DIM_LIOUVILLE_SPACE, DIM_LIOUVILLE_SPACE) np.ndarray
+        Matrix of biorthonormalized left eigenvectors, where Q[:,i] is the ith left eigenKET.
+    P: (DIM_LIOUVILLE_SPACE, DIM_LIOUVILLE_SPACE) np.ndarray
+        Matrix of biorthonormalized right eigenvectors where P[:,i] is the ith right eigenKET.
+    rho_0: (DIM_LIOUVILLE_SPACE,) np.ndarray
+        Density matrix at t=0 as a vector in Fock-Liouville space.
+    t: (T,) np.ndarray
+        Array of time values.
+
+    Returns
+    -------
+    rho_t: (DIM_LIOUVILLE_SPACE,T) np.ndarray
+        Time dependent density matrix as a vector in Fock-Liouville space.
+
+    Notes
+    -----
+
+    .. math:: | \rho(0) \rangle\rangle = \sum_i |\Lambda_i^{\mathrm{R}}\rangle\rangle \langle\langle \Lambda_i^{\mathrm{L}}|\rho(0)\rangle\ranlge
+
+    And even use a Greek symbol like :math:`\omega` inline.
+    """
+
     exp_lambda_t = np.exp(np.einsum("i,t->it", eigvals, t))
     rho_t = np.einsum("it,mi,iv,v->mt", exp_lambda_t, P, Q.conj().T, rho_0)
 
@@ -80,6 +118,11 @@ def check_density_matrix(rho_t):
 
 
 if __name__ == '__main__':
+    DIM_HILBERT_SPACE = 2
+    DIM_LIOUVILLE_SPACE = DIM_HILBERT_SPACE ** 2
+    T = 10
+
+
     energy = 1.
     omega = 0.9
     gamma = 0.1
@@ -89,7 +132,7 @@ if __name__ == '__main__':
     rho_10 = 0.
     rho_11 = 1.
     rho_0 = np.array([rho_00, rho_01, rho_10, rho_11])
-    t = np.linspace(0, 100, 1000)
+    t = np.linspace(0, T, 1000)
 
     L = make_liouvillian(energy, omega, gamma)
 
