@@ -1,0 +1,2 @@
+class UnphysicalDensityMatrixException(Exception):
+    pass
