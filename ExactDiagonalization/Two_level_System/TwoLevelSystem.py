@@ -94,8 +94,8 @@ def get_steady_state(eigvals, Q):
 
     ss_value = 0
     ss_index = np.argwhere(np.isclose(np.abs(eigvals), ss_value))[0][0]
-    steady_state = eigvecs[:, ss_index] / np.abs(eigvecs[:, ss_index][0] + eigvecs[:, ss_index][3])
-    return steady_state
+    rho_ss = Q[:, ss_index] / np.abs(Q[:, ss_index][0] + Q[:, ss_index][3])
+    return rho_ss
 
 
 
