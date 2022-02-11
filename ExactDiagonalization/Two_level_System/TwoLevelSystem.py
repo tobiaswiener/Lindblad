@@ -33,6 +33,15 @@ def biorthonormalize_Q_P(Q, P):
 
 
 def make_liouvillian(energy, omega, gamma):
+    """
+    Source: https://aip.scitation.org/doi/10.1063/1.5115323
+    Builds the Liouviallian operator corresponding to the Lindblad equation for the two-level System with decay.
+    :param energy: Energy of the excited State.
+    :param omega: Coherently driving frequency between the two states.
+    :param gamma: Coupling between the two states and the vacuum.
+    :return:
+        - L - Liouvillian matrix
+    """
     L = np.array([[0, 1j * omega, -1j * omega, gamma],
                   [1j * omega, 1j * energy - gamma / 2, 0, -1j * omega],
                   [-1j * omega, 0, -1j * energy - gamma / 2, 1j * omega],
