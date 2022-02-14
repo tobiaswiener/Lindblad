@@ -4,6 +4,20 @@ import numpy as np
 
 
 def plot_rho_to(t, rho_t,steady_state):
+    """Plots the time dependent density matrix and its steady state as a function of time.
+
+    Botch the populations and the coherences are plotted.
+
+    Parameters
+    ----------
+    t: (T, ) np.ndarray
+    rho_t: (DIM_LIOUVILLE_SPACE,T) np.ndarray
+    steady_state: (DIM_LIOUVILLE_SPACE,) np.ndarray
+
+    Returns
+    -------
+
+    """
     fig, (ax1, ax2) = plt.subplots(1, 2)
     fig.suptitle("Two-level system with decay")
 
