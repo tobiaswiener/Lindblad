@@ -44,9 +44,42 @@ def biorthonormalize_P_Q(P, Q):
     return P_bi, Q_bi
 
 
-def make_liouvillian(energy, omega, gamma):
+def make_phase_damping_lindbladian(energy, omega, gamma):
     """
-     Builds the Liouviallian operator corresponding to the Lindblad equation for the two-level System with decay.
+     Builds the Lindbladian corresponding to the phase damping Lindblad equation for the two-level System.
+
+     The Lindblad operators are L=\sigma^z.
+    Parameters
+    ----------
+    energy: float
+        Energy of the excited State.
+    omega: float
+        Coherently driving frequency between the two states.
+    gamma: float
+        Coupling between the two states and the vacuum.
+
+    Returns
+    -------
+    L: (DIM_LIOUVILLE_SPACE, DIM_LIOUVILLE_SPACE) np.ndarray
+        Liouvillian matrix
+
+    Notes
+    -----
+    Source: https://aip.scitation.org/doi/10.1063/1.5115323
+    """
+
+    L = np.array([[0, 1j * omega, -1j * omega, 0],
+                  [1j * omega, 1j * energy -2*gamma, 0, -1j * omega],
+                  [-1j * omega, 0, -1j * energy -2*gamma, 1j * omega],
+                  [0, -1j * omega, 1j * omega, 0]])
+    return L
+
+
+def make_amplitude_damping_lindbladian(energy, omega, gamma):
+    """
+     Builds the Lindbladian corresponding to the amplitude damping Lindblad equation for the two-level System.
+
+     The Lindblad operators are L=\sigma^-.
     Parameters
     ----------
     energy: float
@@ -73,8 +106,6 @@ def make_liouvillian(energy, omega, gamma):
     return L
 
 
-
-
 def get_steady_state(eigvals, Q):
     """
     Extracts the steady state of the Liouvillian out of the eigenstates.
@@ -96,7 +127,6 @@ def get_steady_state(eigvals, Q):
     ss_index = np.argwhere(np.isclose(np.abs(eigvals), ss_value))[0][0]
     rho_ss = Q[:, ss_index] / np.abs(Q[:, ss_index][0] + Q[:, ss_index][3])
     return rho_ss
-
 
 
 def expand_rho_t(eigvals, P, Q, rho_0, t):
@@ -175,7 +205,6 @@ if __name__ == '__main__':
     DIM_LIOUVILLE_SPACE = DIM_HILBERT_SPACE ** 2
     T = 100
 
-
     energy = 1.
     omega = 0.9
     gamma = 0.1
@@ -187,7 +216,8 @@ if __name__ == '__main__':
     rho_0 = np.array([rho_00, rho_01, rho_10, rho_11])
     t = np.linspace(0, T, 1000)
 
-    L = make_liouvillian(energy, omega, gamma)
+    #L = make_amplitude_damping_lindbladian(energy, omega, gamma)
+    L = make_phase_damping_lindbladian(energy, omega, gamma)
 
     eigvals, P, Q = sp.linalg.eig(L, left=True, right=True)
     P_biorthonorm, Q_biorthonorm = biorthonormalize_P_Q(P=P, Q=Q)
