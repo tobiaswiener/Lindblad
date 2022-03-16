@@ -5,14 +5,16 @@ from collections import defaultdict
 SEED = 1234
 
 
-class State():
+class State:
     rng = np.random.default_rng(SEED)
 
     def __init__(self, n=1, c=None,):
         if c == None:
             c = {}
         self.basis = PauliBasis(n)
+
         assert State._c_is_valid(n,c), "coefficient dict is not valid."
+
         self.c = c
 
 
@@ -45,6 +47,9 @@ class State():
 
     def get_matrix(self):
         return self.basis.coefficients_to_matrix(self.c)
+
+
+
 
 if __name__ == '__main__':
     pass
