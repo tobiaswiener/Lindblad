@@ -36,7 +36,7 @@ class PauliBasis():
         return sigma
 
     def _get_coefficient(self, j, M):
-        cj = np.einsum("ij,ji", self.basis_states[j], M)
+        cj = 1/self.dim_hilbert*np.einsum("ij,ji", self.basis_states[j], M)
         return cj
 
     def matrix_to_coefficients(self, M):
@@ -52,7 +52,7 @@ class PauliBasis():
         for j, c_j in c.items():
             M += c_j * self.basis_states[j]
 
-        M = M / self.dim_hilbert
+        M = M
         return M
 
 
