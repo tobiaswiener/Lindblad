@@ -2,21 +2,39 @@ from basis import PauliBasis
 import numpy as np
 import math
 from collections import defaultdict
+
 SEED = 1234
+
+np.set_printoptions(precision=2, suppress=True)
 
 
 class State:
     rng = np.random.default_rng(SEED)
 
-    def __init__(self, n=1, c=None,):
+    def __init__(self, n=1, c=None, ):
         if c == None:
             c = {}
         self.basis = PauliBasis(n)
 
-        assert State._c_is_valid(n,c), "coefficient dict is not valid."
+        assert State._c_is_valid(n, c), "coefficient dict is not valid."
 
         self.c = c
 
+    @staticmethod
+    def inner_product(a, b):
+        assert a.basis.basis_states.keys() == b.basis.basis_states.keys(), "a and b need to have the same basis"
+
+        inner = 0
+        for j in a.basis.basis_states.keys():
+            if (j in a.c) and (j in b.c):
+                inner += a.c[j] * b.c[j]
+        return inner
+
+    @staticmethod
+    def inner_product_matrix(ma, mb):
+        assert ma.shape == mb.shape, "ma and mb need to have the same shape"
+        inner = 1 / (2 ** n) * np.einsum("ij,ji", ma.T.conj(), mb)
+        return inner
 
     @classmethod
     def _c_is_valid(cls, n, c):
@@ -38,18 +56,28 @@ class State:
 
     @classmethod
     def from_random(cls, n):
-        basis = PauliBasis(n,)
+        basis = PauliBasis(n, )
         c = {}
         for j in basis.basis_states.keys():
             c[j] = cls.rng.random()
         return cls(n, c)
 
-
     def get_matrix(self):
         return self.basis.coefficients_to_matrix(self.c)
 
-
+    def is_pos_definite(self):
+        return np.all(np.linalg.eigvals(self.get_matrix()) > 0)
 
 
 if __name__ == '__main__':
-    pass
+    n = 1
+    omega = 0.5
+    energy = 1.
+    h = np.array([[0, omega],
+                  [omega, energy]])
+    H = 1.
+    for i in range(n):
+        H = np.kron(H,h)
+
+
+

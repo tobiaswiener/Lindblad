@@ -2,8 +2,6 @@ import itertools
 
 import numpy as np
 
-
-
 class PauliBasis():
     pauli_idxs = (0, 1, 2, 3)
     s0 = np.matrix([[1, 0], [0, 1]])
@@ -13,9 +11,6 @@ class PauliBasis():
     s = np.array((s0, s1, s2, s3))
 
     def __init__(self, n):
-
-
-
         self.n = n
         self.dim_hilbert = 2**n
         self.dim_liouville = 4**n
@@ -36,13 +31,17 @@ class PauliBasis():
         return sigma
 
     def _get_coefficient(self, j, M):
+
         cj = 1/self.dim_hilbert*np.einsum("ij,ji", self.basis_states[j], M)
         return cj
 
     def matrix_to_coefficients(self, M):
+        hermitian = np.allclose(M, M.conj().T)
         c = {}
         for j, sigma in self.basis_states.items():
             cj = self._get_coefficient(j, M)
+            if hermitian:
+                cj = cj.real
             c[j] = cj
 
         return c
