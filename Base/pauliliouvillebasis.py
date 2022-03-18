@@ -56,15 +56,34 @@ class PauliLiouvilleBasis:
                     return False
         return True
 
-    def _get_coefficient(self, M, mu):
-        pass
-    def matrix_to_pauli_coefficient(self, M):
-        pass
+    def _get_coefficient(self, M_sk, mu):
+        c_mu = np.einsum("i,i",self.basis[mu].conj(), M_sk)
+        return c_mu
+
+    def matrix_to_pauli_coefficient(self, M_sk):
+        M = self._bra_flip_inv(M_sk)
+        hermitian = np.allclose(M, M.conj().T)
+        c = {}
+        for mu in self.basis.keys():
+            c_mu = self._get_coefficient(M_sk, mu)
+            if hermitian and np.isclose(c_mu.imag, 0):
+                c_mu = c_mu.real
+            c[mu] = c_mu
+        return c
 
     def pauli_coefficient_to_matrix(self, c):
-        pass
+        M_sk = np.zeros((self.dim_liouville,), dtype=complex)
+        for mu, c_mu in c.items():
+            M_sk += c_mu * self.basis[mu]
+        return M_sk
 
-
+    def _bra_flip(self, M):
+        assert M.shape == (self.dim_hilbert, self.dim_hilbert), "matrix must have shape (n**2,n**2)"
+        M_sk = M.flatten()
+        return M_sk
+    def _bra_flip_inv(self, M_sk):
+        assert M_sk.shape == (self.dim_liouville,), "superket must have shape (n**4)"
+        return M_sk.reshape(self.dim_hilbert, self.dim_hilbert)
 
 
 def make_random_hermitian_matrix(n):
@@ -82,4 +101,8 @@ if __name__ == '__main__':
     H2 = make_random_hermitian_matrix(2)
 
     b3 = PauliLiouvilleBasis(3)
+    hb3 = PauliHilbertBasis(3)
+
     H3 = make_random_hermitian_matrix(3)
+
+

@@ -74,7 +74,6 @@ class PauliHilbertBasis:
         M = np.zeros((self.dim_hilbert, self.dim_hilbert), dtype=complex)
         for mu, c_mu in c.items():
             M += c_mu * self.basis[mu]
-
         return M
 
 
