@@ -56,43 +56,36 @@ class PauliHilbertBasis:
         assert np.isclose(norm, 1)
         return basis_element
 
-
     def _get_coefficient(self, M, mu):
-        hermitian = np.allclose(M, M.conj().T)
-
-        M_mu = np.einsum("ij,ji", M, self.basis[mu])
-        if hermitian and np.isclose(M_mu.imag,0):
-            M_mu = M_mu.real
-
-        return M_mu
+        c_mu = np.einsum("ij,ji", M, self.basis[mu])
+        return c_mu
 
     def matrix_to_coefficient(self, M):
+        hermitian = np.allclose(M, M.conj().T)
         c = {}
         for mu in self.basis.keys():
             c_mu = self._get_coefficient(M, mu)
+            if hermitian and np.isclose(c_mu.imag, 0):
+                c_mu = c_mu.real
             c[mu] = c_mu
         return c
 
     def coefficient_to_matrix(self, c):
         M = np.zeros((self.dim_hilbert, self.dim_hilbert), dtype=complex)
         for mu, c_mu in c.items():
-            M += c_mu*self.basis[mu]
+            M += c_mu * self.basis[mu]
 
         return M
 
 
-
-
-
-
 def make_random_hermitian_matrix(n):
-    dim = 2**n
-    H = np.random.random((dim,dim)) + 1j*np.random.random((dim,dim))
+    dim = 2 ** n
+    H = np.random.random((dim, dim)) + 1j * np.random.random((dim, dim))
     H = H + H.conjugate().T
     return H
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
     b1 = PauliHilbertBasis(1)
     H1 = make_random_hermitian_matrix(1)
 
@@ -101,7 +94,3 @@ if __name__ == '__main__':
 
     b3 = PauliHilbertBasis(3)
     H3 = make_random_hermitian_matrix(3)
-
-
-
-
