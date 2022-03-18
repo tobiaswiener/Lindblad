@@ -40,9 +40,9 @@ class PauliLiouvilleBasis:
     def get_basis_element(self, mu):
         basis_element = 1.
         for i in range(self.n):
-            basis_element = np.kron(basis_element, self.s_norm[mu[i]].flatten())
+            basis_element = np.kron(basis_element, self.s_norm[mu[i]])
 
-        return basis_element
+        return basis_element.flatten()
 
     @staticmethod
     def _is_orthonormal(basis):
@@ -58,7 +58,6 @@ class PauliLiouvilleBasis:
 
     def _get_coefficient(self, M, mu):
         pass
-
     def matrix_to_pauli_coefficient(self, M):
         pass
 
