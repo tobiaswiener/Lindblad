@@ -2,14 +2,13 @@ import itertools
 from abc import ABCMeta, abstractmethod
 import numpy as np
 class Basis(metaclass=ABCMeta):
-    pauli_local_idxs = (0, 1, 2, 3)
+    local_idxs = (0, 1, 2, 3)
     s0 = np.matrix([[1, 0], [0, 1]])
     s1 = np.matrix([[0, 1], [1, 0]])
     s2 = np.matrix([[0, -1j], [1j, 0]])
     s3 = np.matrix([[1, 0], [0, -1]])
     s = np.array((s0, s1, s2, s3))
     s_norm = 1 / np.sqrt(2) * np.array((s0, s1, s2, s3))
-
     def __init__(self, n):
         self.n = n
         self.dim_hilbert = 2 ** n
@@ -22,7 +21,7 @@ class Basis(metaclass=ABCMeta):
         self._init_basis_elements()
 
     def _init_indices(self):
-        for mu in itertools.product(self.pauli_local_idxs, repeat=self.n):
+        for mu in itertools.product(self.local_idxs, repeat=self.n):
             self.indices.append(mu)
 
     def _init_basis_elements(self):

@@ -1,4 +1,5 @@
 import numpy as np
+np.set_printoptions(precision=2, suppress=True)
 
 from basis import Basis
 from paulihilbertbasis import PauliHilbertBasis
@@ -26,4 +27,3 @@ if __name__ == '__main__':
     H1_new = hb.coefficient_to_operator(hb.operator_to_coefficient(H1))
     H1_sk_new = lb.coefficients_to_superket(lb.superket_to_coefficients(H1_sk))
 
-    
